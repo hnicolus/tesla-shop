@@ -1,19 +1,15 @@
-import {useRef,Suspense} from "react";
-import {useFrame, useLoader} from "@react-three/fiber";
+import { useRef, Suspense } from "react";
+import { useFrame, useLoader } from "@react-three/fiber";
 import * as THREE from "three";
+import { useBox } from "@react-three/cannon";
 
 const Box = (props) => {
-    const meshRef = useRef();
+    //const ref = useRef();
+    const [ref, api] = useBox(() => ({ mass: 1, ...props }))
     const texture = useLoader(THREE.TextureLoader, 'wood.jpg')
 
-    useFrame(
-        state => {
-            meshRef.current.rotation.y += 0.01;
-        }
-    )
-
-    const handlePointerdown = (e)=>{
-        if(window.activeMesh){
+    const handlePointerdown = (e) => {
+        if (window.activeMesh) {
             scaleDown(window.activeMesh);
             window.activeMesh.active = false;
         }
@@ -21,28 +17,29 @@ const Box = (props) => {
         window.activeMesh = e.object;
 
     }
-    const handlePointerEnter = e=>{
-        e.object.scale.x =1.5
-        e.object.scale.y =1.5
-        e.object.scale.x =1.5
+    const handlePointerEnter = e => {
+        e.object.scale.x = 1.5
+        e.object.scale.y = 1.5
+        e.object.scale.x = 1.5
     }
-    const handlePointerLeave = e =>{
-        if(!e.object.active){
+    const handlePointerLeave = e => {
+        if (!e.object.active) {
             scaleDown(e.object);
         }
     }
-    const scaleDown = (object)=>{
-        object.scale.x =1
-        object.scale.y =1
-        object.scale.x =1
+    const scaleDown = (object) => {
+        object.scale.x = 1
+        object.scale.y = 1
+        object.scale.x = 1
     }
     return (
-        <mesh ref={meshRef} {...props}
-              castShadow
-              receiveShadow
-              onPointerDown={handlePointerdown}
-              onPointerEnter={handlePointerEnter}
-              onPointerLeave={handlePointerLeave}
+        <mesh ref={ref} {...props}
+            castShadow
+            api={api}
+            receiveShadow
+            onPointerDown={handlePointerdown}
+            onPointerEnter={handlePointerEnter}
+            onPointerLeave={handlePointerLeave}
         >
             <boxBufferGeometry />
             <meshPhysicalMaterial
@@ -54,9 +51,10 @@ const Box = (props) => {
                 reflectivity={1}
                 // side={THREE.DoubleSide}
                 transparent
-                // transmission={0.5}
+                opacity={1}
+            //transmission={0.9}
             />
         </mesh>
     )
 }
-export default  Box;
+export default Box;
